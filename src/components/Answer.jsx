@@ -1,17 +1,17 @@
-import { makeStyles } from '@material-ui/core/styles';
+// import { makeStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 
-const useStyles = makeStyles((theme) => ({
-  root: {
+// const useStyles = makeStyles((theme) => ({
+//   root: {
 
-  },
-}));
+//   },
+// }));
 
 const Answer = (props) => {
   // const classes = useStyles();
 
   return (
-    <Button variant="contained">
+    <Button variant="contained" color="primary" onClick={() => props.select(props.content, props.nextId)}>
       { props.content }
     </Button>
   )

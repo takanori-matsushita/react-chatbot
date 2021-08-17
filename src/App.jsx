@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import defaultDataset from "./dataset";
 import "./assets/styles/style.css";
 import { AnswersList, Chats } from "./components";
+import FormDialog from "./components/Forms/FormDialog"
 
 const App = () => {
   const [answers, setAnswers] = useState([]);
@@ -9,8 +10,15 @@ const App = () => {
   const [currentId, setCurrentId] = useState('init');
   const dataset = defaultDataset
   // const [dataset, setDataset] = useState(defaultDataset);
-  // const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(false);
 
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
   const displayNextQuestion = (nextQuestionId) => {
     const chat = {
       text: dataset[nextQuestionId].question,
@@ -25,6 +33,9 @@ const App = () => {
     switch (true) {
       case (nextQuestionId === 'init'):
         setTimeout(() => displayNextQuestion(nextQuestionId), 500)
+        break
+      case (nextQuestionId === 'contact'):
+        handleClickOpen()
         break
       case (/^https:*/.test(nextQuestionId)):
         const a = document.createElement('a')
@@ -62,6 +73,7 @@ const App = () => {
         <div className="c-box">
           <Chats chats={chats} />
           <AnswersList answers={answers} select={selectAnswer} />
+          <FormDialog open={open} handleClose={handleClose} handleClickOpen={handleClickOpen} />
         </div>
       </section>
     </div>

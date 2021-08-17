@@ -24,7 +24,13 @@ const App = () => {
   const selectAnswer = (selectedAnswer, nextQuestionId) => {
     switch (true) {
       case (nextQuestionId === 'init'):
-        displayNextQuestion(nextQuestionId)
+        setTimeout(() => displayNextQuestion(nextQuestionId), 500)
+        break
+      case (/^https:*/.test(nextQuestionId)):
+        const a = document.createElement('a')
+        a.href = nextQuestionId
+        a.target = '_blank'
+        a.click()
         break
       default:
         const chat = {
@@ -32,7 +38,7 @@ const App = () => {
           type: "answer",
         }
         setChats(prevChats => [...prevChats, chat])
-        displayNextQuestion(nextQuestionId)
+        setTimeout(() => displayNextQuestion(nextQuestionId), 500)
         break
     }
   }
@@ -42,6 +48,13 @@ const App = () => {
     selectAnswer(initAnswer, currentId)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  useEffect(() => {
+    const scrollArea = document.getElementById("scroll-area")
+    if (scrollArea) {
+      scrollArea.scrollTop = scrollArea.scrollHeight
+    }
+  })
 
   return (
     <div>

@@ -1,39 +1,39 @@
-import { useState, useEffect } from "react";
-import defaultDataset from "./dataset";
+import { useState, useEffect, useCallback } from "react";
 import "./assets/styles/style.css";
 import { AnswersList, Chats } from "./components";
 import FormDialog from "./components/Forms/FormDialog"
+import { db } from "./firebase/config"
 
 const App = () => {
   const [answers, setAnswers] = useState([]);
   const [chats, setChats] = useState([]);
   const [currentId, setCurrentId] = useState('init');
-  const dataset = defaultDataset
-  // const [dataset, setDataset] = useState(defaultDataset);
+  const [dataset, setDataset] = useState({});
   const [open, setOpen] = useState(false);
 
-  const handleClickOpen = () => {
+  const handleClickOpen = useCallback(() => {
     setOpen(true);
-  };
+  }, [setOpen]);
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     setOpen(false);
-  };
-  const displayNextQuestion = (nextQuestionId) => {
-    const chat = {
-      text: dataset[nextQuestionId].question,
-      type: "question",
-    }
-    setAnswers(dataset[nextQuestionId].answers)
+  }, [setOpen]);
+
+  const addChats = (chat) => {
     setChats(prevChats => [...prevChats, chat])
+  }
+
+  const displayNextQuestion = (nextQuestionId, nextDataset) => {
+    addChats({
+      text: nextDataset.question,
+      type: "question",
+    })
+    setAnswers(nextDataset.answers)
     setCurrentId(nextQuestionId)
   }
 
   const selectAnswer = (selectedAnswer, nextQuestionId) => {
     switch (true) {
-      case (nextQuestionId === 'init'):
-        setTimeout(() => displayNextQuestion(nextQuestionId), 500)
-        break
       case (nextQuestionId === 'contact'):
         handleClickOpen()
         break
@@ -44,19 +44,25 @@ const App = () => {
         a.click()
         break
       default:
-        const chat = {
+        addChats({
           text: selectedAnswer,
           type: "answer",
-        }
-        setChats(prevChats => [...prevChats, chat])
-        setTimeout(() => displayNextQuestion(nextQuestionId), 500)
+        })
+        setTimeout(() => displayNextQuestion(nextQuestionId, dataset[nextQuestionId]), 500)
         break
     }
   }
 
   useEffect(() => {
-    const initAnswer = ""
-    selectAnswer(initAnswer, currentId)
+    (async () => {
+      const initDataset = {}
+      const snapshots = await db.collection('questions').get()
+      snapshots.forEach((doc) => {
+        initDataset[doc.id] = doc.data()
+      })
+      setDataset(initDataset)
+      displayNextQuestion(currentId, initDataset[currentId])
+    })()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
